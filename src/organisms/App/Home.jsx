@@ -11,6 +11,7 @@ export const AppHome = (props) => {
   // // const { uid, autoCode, nonce } = queryParams;
 
   const formWrapper = useRef(null);
+  const inputFile = useRef(null);
   const [ email, setEmail ] = useState();
   const [ disableEmail, setDisableEmail ] = useState();
   const [ registered, setRegistered ] = useState(false);
@@ -63,48 +64,56 @@ export const AppHome = (props) => {
   }, [ email, setIsAuthenticated, navByStep, next ]);
 
   const upload = (video) => {
-    const fullname = `${Date.now()}.${videoExtension(video.type)}`;
+    console.log('uploading file', file);
+    // const fullname = `${Date.now()}.${videoExtension(video.type)}`;
 
-    setIsUploading(true);
+    // setIsUploading(true);
 
-    // Reset notifier msgs before continuing with upload
-    notifier.reset();
+    // // Reset notifier msgs before continuing with upload
+    // notifier.reset();
 
-    if (filter) {
-      api.post('posts', {
-        filter: filter._id,
-        filename: fullname,
-        filetype: video.type,
-        filesize: video.size
-      }).then(({ data }) => {
-        const { _id, signedPutUrl, signedGetUrl } = data;
+    // if (filter) {
+    //   api.post('posts', {
+    //     filter: filter._id,
+    //     filename: fullname,
+    //     filetype: video.type,
+    //     filesize: video.size
+    //   }).then(({ data }) => {
+    //     const { _id, signedPutUrl, signedGetUrl } = data;
 
-        setPostId(_id);
-        storage.set('postId', _id);
+    //     setPostId(_id);
+    //     storage.set('postId', _id);
 
-        fetch(signedPutUrl, {
-          method: 'PUT',
-          body: video,
-          headers: {
-            'Content-Type': video.type,
-            'Content-Length': video.size,
-            'Content-Disposition': `inline; filename="${fullname}"`,
-          }
-        }).then((resp) => {
-          setIsUploading(false);
-          setVideo(signedGetUrl);
-          navByStep(next);
-        }).catch(err => {
-          setIsUploading(false);
-          console.error(err);
-          notifier.bad(err);
-        });
-      }).catch(err => {
-        setIsUploading(false);
-        console.error(err);
-        notifier.bad(err);
-      });
-    }
+    //     fetch(signedPutUrl, {
+    //       method: 'PUT',
+    //       body: video,
+    //       headers: {
+    //         'Content-Type': video.type,
+    //         'Content-Length': video.size,
+    //         'Content-Disposition': `inline; filename="${fullname}"`,
+    //       }
+    //     }).then((resp) => {
+    //       setIsUploading(false);
+    //       setVideo(signedGetUrl);
+    //       navByStep(next);
+    //     }).catch(err => {
+    //       setIsUploading(false);
+    //       console.error(err);
+    //       notifier.bad(err);
+    //     });
+    //   }).catch(err => {
+    //     setIsUploading(false);
+    //     console.error(err);
+    //     notifier.bad(err);
+    //   });
+    // }
+  };
+
+  const onButtonClick = (e) => {
+    // `current` points to the mounted file input element
+    inputFile.current.click();
+    console.log('input file', inputFile);
+    setFile(inputFile.current.value);
   };
 
   return (
@@ -127,9 +136,10 @@ export const AppHome = (props) => {
                   disabled={true}
                   value={file}
                 />
-                <span className={'subtext'} onClick={registerUser}>
-                  <button className={'btn-link'}>Select File</button>
-                  <button className={'btn-link'}>Submit File</button>
+                <span className={'subtext'}>
+                  <input type='file' id='file' ref={inputFile} style={{display: 'none'}}/>
+                  <button onClick={onButtonClick}>Select File</button>
+                  <button className={'btn-link'} onClick={upload}>Submit File</button>
                 </span>
               </div>
             </Container>
