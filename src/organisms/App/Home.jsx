@@ -1,6 +1,9 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Form, FormGroup, Label, Input, Container, Row, Col } from 'reactstrap';
 import { api, notifier, storage } from '../../lib';
+import async from 'async';
+import { useDropzone } from 'react-dropzone';
+import { CustomButton } from "../../atoms";
 import { Button } from 'reactstrap';
 // import { ButtonBasic } from '../../atoms';
 
@@ -15,13 +18,40 @@ export const AppHome = (props) => {
   const [ email, setEmail ] = useState();
   const [ disableEmail, setDisableEmail ] = useState();
   const [ registered, setRegistered ] = useState(false);
-  const [ file, setFile ] = useState('');
+  const [ uploadedFile, setUploadFile ] = useState('');
 
   // useEffect(() => {
   //   if (storage.get('token')) {
   //     navByRoute('capture');
   //   }
   // }, [ navByRoute ]);
+
+  const onDrop = (acceptedFiles) => {
+    // setIsUploading(true);
+    // const attachments = [];
+    // const fileNames = [];
+
+    async.each(acceptedFiles, (file, next) => {
+      const uploadPath = file.name;
+      setUploadFile(uploadPath);
+      // storageRef.child(uploadPath).put(file).then(() => {
+      //   attachments.push({
+      //     fileName: file.name,
+      //     fileSize: file.size,
+      //     fileType: file.type,
+      //     filePath: uploadPath
+      //   });
+      //   fileNames.push(file.name);
+      //   next();
+      // }).catch(next);
+    }, (err) => {
+      if (err) {
+        console.warn('unable to upload file', err);
+      }
+    });
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   const updateEmail = (value) => {
     setEmail(value ? value.toLowerCase() : '');
@@ -64,7 +94,7 @@ export const AppHome = (props) => {
   }, [ email, setIsAuthenticated, navByStep, next ]);
 
   const upload = (video) => {
-    console.log('uploading file', file);
+    console.log('uploading file', uploadedFile);
     // const fullname = `${Date.now()}.${videoExtension(video.type)}`;
 
     // setIsUploading(true);
@@ -109,13 +139,6 @@ export const AppHome = (props) => {
     // }
   };
 
-  const onButtonClick = (e) => {
-    // `current` points to the mounted file input element
-    inputFile.current.click();
-    console.log('input file', inputFile);
-    setFile(inputFile.current.value);
-  };
-
   return (
     <section id="RegistrationPage">
       { registered ? 
@@ -134,13 +157,32 @@ export const AppHome = (props) => {
                   placeholder='attachment' 
                   autoComplete='attachment'
                   disabled={true}
-                  value={file}
+                  value={uploadedFile}
                 />
-                <span className={'subtext'}>
-                  <input type='file' id='file' ref={inputFile} style={{display: 'none'}}/>
-                  <button onClick={onButtonClick}>Select File</button>
-                  <button className={'btn-link'} onClick={upload}>Submit File</button>
-                </span>
+              </div>
+
+              <div {...getRootProps()}
+                className="input"
+                id="messageAttachment"
+              >
+                <input {...getInputProps()} />
+
+                <div className="message-attachment">
+                  <CustomButton
+                    iconName='attachment'
+                    type="file"
+                    name="Attachment"
+                    btnClass="icon-attachment"
+                  />
+                </div>
+              </div>
+
+              <div class="submit-file">
+                <CustomButton
+                  type="submit"
+                  name="Submit"
+                  onClick={upload}
+                />
               </div>
             </Container>
           </div>
@@ -169,7 +211,7 @@ export const AppHome = (props) => {
 
               <div>
                 <p className={'subtext'} onClick={registerUser}>
-                  <button className={'btn-link'}>Next</button>
+                  <button className={'btn-link'}>Submit</button>
                 </p>
               </div>
             </Container>
