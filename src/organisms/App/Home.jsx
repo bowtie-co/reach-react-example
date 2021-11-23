@@ -27,23 +27,9 @@ export const AppHome = (props) => {
   // }, [ navByRoute ]);
 
   const onDrop = (acceptedFiles) => {
-    // setIsUploading(true);
-    // const attachments = [];
-    // const fileNames = [];
-
     async.each(acceptedFiles, (file, next) => {
       const uploadPath = file.name;
       setUploadFile(uploadPath);
-      // storageRef.child(uploadPath).put(file).then(() => {
-      //   attachments.push({
-      //     fileName: file.name,
-      //     fileSize: file.size,
-      //     fileType: file.type,
-      //     filePath: uploadPath
-      //   });
-      //   fileNames.push(file.name);
-      //   next();
-      // }).catch(next);
     }, (err) => {
       if (err) {
         console.warn('unable to upload file', err);
