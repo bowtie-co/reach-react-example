@@ -17,10 +17,10 @@ export const WithSidebar = ({ children, className, ...props }) => {
   return (
     <Fragment>
       <section className='app'>
-        <AppNavbar {...props} />
+        {/* <AppNavbar {...props} /> */}
 
         <section className={`WithSidebar content-wrapper ${className || ''}`}>
-          <AppSidebar {...props} {...{ isCollapsed, toggleIsCollapsed }} />
+          {/* <AppSidebar {...props} {...{ isCollapsed, toggleIsCollapsed }} /> */}
 
           <WithContent {...props}>
             <AppAlert {...props} />

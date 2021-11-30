@@ -1,4 +1,5 @@
 export * from './WithApp';
+export * from './WithAuth';
 export * from './WithChildren';
 export * from './WithContent';
 export * from './WithErrorBoundary';
