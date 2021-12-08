@@ -3,6 +3,7 @@ export * from './Footer';
 export * from './Home';
 export * from './Navbar';
 export * from './NotFound';
+export * from './Preview';
 export * from './Register';
 export * from './Sidebar';
 export * from './ThankYou';
