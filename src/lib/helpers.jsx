@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 // import {
 //   WithApp
@@ -80,4 +80,20 @@ export const createOrUpdate = (existing, subject) => {
   }
 
   return updated;
+};
+
+export const useWindowDimensions = () => {
+  const [ width, setWidth ] = useState(window.innerWidth);
+  const [ height, setHeight ] = useState(window.innerHeight);
+
+  const handleResize = () => {
+    setWidth(window.innerWidth);
+    setHeight(window.innerHeight);
+  };
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+  });
+
+  return { width, height };
 };

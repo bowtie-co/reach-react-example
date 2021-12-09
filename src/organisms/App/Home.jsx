@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { api, notifier, storage } from '../../lib';
 import async from 'async';
 import { useDropzone } from 'react-dropzone';
-import { AppRegister, AppUpload, AppThankYou } from '../../organisms';
+import { AppRegister, AppUpload, AppThankYou, AppPreview } from '../../organisms';
 
 export const AppHome = (props) => {
   const { isAuthenticated, setIsAuthenticated } = props;
@@ -10,7 +10,9 @@ export const AppHome = (props) => {
   const [ email, setEmail ] = useState();
   const [ isUploading, setIsUploading ] = useState(false);
   const [ isUploaded, setIsUploaded ] = useState(false);
+  const [ isSubmitted, setIsSubmitted ] = useState(false);
   const [ uploadedFile, setUploadFile ] = useState('');
+  const [ post, setPost ] = useState();
 
   const onDrop = (acceptedFiles) => {
     async.each(acceptedFiles, (file, next) => {
@@ -34,6 +36,15 @@ export const AppHome = (props) => {
     setIsUploaded(false);
   };
 
+  const approve = () => {
+    api.post(`posts/${post.id}/submit`).then(({ data }) => {
+      console.log('User submitted post', data);
+      setIsSubmitted(false);
+    }).catch((err) => {
+      console.error(err);
+    });
+  };
+
   const registerUser = useCallback(() => {
     if (email && name) {
       const payload = { email, name };
@@ -46,6 +57,7 @@ export const AppHome = (props) => {
 
       api.post('users', payload).then(({ data }) => {
         console.log('User registered with', data);
+        storage.set('userId', data.uid);
         return api.post('users/login', data).then(({ data }) => {
           console.log('Code validated with', data);
           storage.set('token', data.token);
@@ -69,7 +81,6 @@ export const AppHome = (props) => {
   const upload = () => {
     console.log('uploading file', uploadedFile);
     const fullname = `${Date.now()}.${uploadedFile.name}`;
-
     setIsUploading(true);
 
     if (uploadedFile) {
@@ -79,6 +90,13 @@ export const AppHome = (props) => {
         filesize: uploadedFile.size
       }).then(({ data }) => {
         const { _id, signedPutUrl, signedGetUrl } = data;
+        
+        setPost({
+          id: _id,
+          filepath: storage.get('userId'),
+          filename: fullname
+        });
+        setIsSubmitted(true);
 
         fetch(signedPutUrl, {
           method: 'PUT',
@@ -104,6 +122,7 @@ export const AppHome = (props) => {
 
   const registerProps = { setName, updateEmail, registerUser};
   const uploadProps = { getRootProps, getInputProps, upload, uploadedFile};
+  const previewProps = { post, approve, redirectToUpload };
   const thankYouProps = { redirectToUpload };
 
   return (
@@ -112,6 +131,8 @@ export const AppHome = (props) => {
         <AppRegister {...registerProps} />
         : !isUploaded && !isUploading ? 
         <AppUpload {...uploadProps}/>
+        : isSubmitted ?
+        <AppPreview {...previewProps}/>
         :
         <AppThankYou {...thankYouProps} />
       }
